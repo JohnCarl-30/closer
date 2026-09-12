@@ -103,3 +103,46 @@ test("replaySilent200 fails verify on a send 200 with no sent mail", async () =>
   assert.ok(got.writes.includes("gmail.send"));
   assert.equal(got.verification?.gmailSentId, null);
 });
+
+test("a failed Linear comment verifies as missing, then retryMissing lands it", async () => {
+  const apps = createMockApps(DEMO_SEED, [
+    { tool: "linear.comment", throw: "Linear commentCreate 500" },
+  ]);
+  const failed = await planAndExecute(apps, DEMO_PR_URL);
+
+  assert.equal(failed.status, "failed");
+  assert.deepEqual(failed.verification?.missing, ["linear.comment"]);
+  assert.deepEqual(failed.writes, ["linear.setState", "gmail.send"]);
+  assert.equal(failed.verification?.linearDone, true);
+
+  // The scripted failure is consumed, so the retry writes the comment for real.
+  const recovered = await retryMissing(apps, failed);
+
+  assert.equal(recovered.status, "done");
+  assert.deepEqual(recovered.verification?.missing, []);
+  assert.equal(recovered.verification?.commentHasPrUrl, true);
+  assert.deepEqual(recovered.writes, [
+    "linear.setState",
+    "gmail.send",
+    "linear.comment",
+  ]);
+});
+
+test("retryMissing re-sends only what verify reported missing", async () => {
+  const apps = createMockApps(DEMO_SEED, [
+    { tool: "gmail.send", persistSent: false },
+  ]);
+  const failed = await planAndExecute(apps, DEMO_PR_URL);
+  assert.deepEqual(failed.verification?.missing, ["gmail"]);
+
+  const recovered = await retryMissing(apps, failed);
+
+  assert.equal(recovered.status, "done");
+  // Linear already landed, so the retry touches gmail and nothing else.
+  assert.deepEqual(recovered.writes, [
+    "linear.setState",
+    "linear.comment",
+    "gmail.send",
+    "gmail.send",
+  ]);
+});
