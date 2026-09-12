@@ -154,10 +154,22 @@ export class Closer extends Agent<Env, CloserState> {
   async retryMissing(): Promise<CloserState> {
     if (this.state.status !== "failed" || !this.state.plan) return this.state;
     const { apps, mode, flags } = createApps(this.env, this.state.plan.pr.url);
-    const result = await retryMissing(apps, priorFrom(this.state));
-    const next = fromResult(result, mode, flags);
-    this.setState(next);
-    return next;
+    try {
+      const result = await retryMissing(apps, priorFrom(this.state));
+      const next = fromResult(result, mode, flags);
+      this.setState(next);
+      return next;
+    } catch (err) {
+      const next: CloserState = {
+        ...this.state,
+        status: "failed",
+        error: err instanceof Error ? err.message : String(err),
+        appsMode: mode,
+        liveFlags: flags,
+      };
+      this.setState(next);
+      return next;
+    }
   }
 
   @callable()

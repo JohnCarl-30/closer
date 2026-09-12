@@ -45,6 +45,6 @@ npm test
 npm run eval
 ```
 
-Unit tests cover matching, the confidence gate, 429 retries, GitHub URL parsing, ship helpers, and orchestrator plan/execute/retry. `npm run eval` is the 12-case golden set with field-level assertions on every write.
+Unit tests cover matching, the confidence gate, 429 retries, GitHub URL parsing, ship helpers, and orchestrator plan/execute/retry. `npm run eval` is the 13-case golden set with field-level assertions on every write.
 
 See [RELIABILITY.md](RELIABILITY.md).
