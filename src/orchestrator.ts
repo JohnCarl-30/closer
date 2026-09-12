@@ -54,6 +54,25 @@ function assemblePlan(
   };
 }
 
+/**
+ * Attempts one write. Records it in `writes` only if it lands, and swallows the
+ * failure so the run always reaches the verifier — which is the only thing
+ * allowed to decide what actually happened.
+ */
+async function attempt(
+  tracer: Tracer,
+  writes: string[],
+  name: string,
+  fn: () => Promise<unknown>,
+): Promise<void> {
+  try {
+    await fn();
+    writes.push(name);
+  } catch {
+    // left for the verifier to report as missing
+  }
+}
+
 function result(
   status: RunStatus,
   plan: Plan,
@@ -214,36 +233,30 @@ export async function execute(
   const alreadyCommented = commentMentionsPr(existingComments, next.pr.url);
 
   if (!alreadyDone) {
-    await tracer.call(
-      "linear.setState",
-      { issueId: next.issue.id, state: "Done" },
-      () => apps.linear.setState(next.issue!.id, "Done"),
-      "writer",
+    await attempt(tracer, writes, "linear.setState", () =>
+      tracer.call(
+        "linear.setState",
+        { issueId: next.issue!.id, state: "Done" },
+        () => apps.linear.setState(next.issue!.id, "Done"),
+        "writer",
+      ),
     );
-    writes.push("linear.setState");
   }
 
   if (!alreadyCommented) {
-    await tracer.call(
-      "linear.comment",
-      { issueId: next.issue.id, body: next.comment },
-      () => apps.linear.comment(next.issue!.id, next.comment),
-      "writer",
+    await attempt(tracer, writes, "linear.comment", () =>
+      tracer.call(
+        "linear.comment",
+        { issueId: next.issue!.id, body: next.comment },
+        () => apps.linear.comment(next.issue!.id, next.comment),
+        "writer",
+      ),
     );
-    writes.push("linear.comment");
   }
 
-  try {
-    await tracer.call(
-      "gmail.send",
-      next.email,
-      () => apps.gmail.send(next.email!),
-      "writer",
-    );
-    writes.push("gmail.send");
-  } catch {
-    // verifier will mark gmail missing
-  }
+  await attempt(tracer, writes, "gmail.send", () =>
+    tracer.call("gmail.send", next.email, () => apps.gmail.send(next.email!), "writer"),
+  );
 
   const verification = await verifyPlan(apps, next, sinceUnix, tracer);
   const status: RunStatus = verification.missing.length ? "failed" : "done";
@@ -261,7 +274,12 @@ export async function retryMissing(
   apps: Apps,
   prior: OrchestratorResult,
 ): Promise<OrchestratorResult> {
-  if (prior.status !== "failed" || !prior.verification || !prior.plan.email) {
+  if (
+    prior.status !== "failed" ||
+    !prior.verification ||
+    !prior.plan.issue ||
+    !prior.plan.email
+  ) {
     return prior;
   }
   const tracer = makeTracer(prior.traces[0]?.runId ?? newRunId());
@@ -269,14 +287,35 @@ export async function retryMissing(
   const writes = [...prior.writes];
   const sinceUnix = Math.floor(Date.now() / 1000) - 5;
 
-  if (prior.verification.missing.includes("gmail")) {
-    await tracer.call(
-      "gmail.send",
-      prior.plan.email,
-      () => apps.gmail.send(prior.plan.email!),
-      "writer",
+  const { issue, email } = prior.plan;
+  const missing = prior.verification.missing;
+
+  if (missing.includes("linear.state")) {
+    await attempt(tracer, writes, "linear.setState", () =>
+      tracer.call(
+        "linear.setState",
+        { issueId: issue!.id, state: "Done" },
+        () => apps.linear.setState(issue!.id, "Done"),
+        "writer",
+      ),
     );
-    writes.push("gmail.send");
+  }
+
+  if (missing.includes("linear.comment")) {
+    await attempt(tracer, writes, "linear.comment", () =>
+      tracer.call(
+        "linear.comment",
+        { issueId: issue!.id, body: prior.plan.comment },
+        () => apps.linear.comment(issue!.id, prior.plan.comment),
+        "writer",
+      ),
+    );
+  }
+
+  if (missing.includes("gmail")) {
+    await attempt(tracer, writes, "gmail.send", () =>
+      tracer.call("gmail.send", email, () => apps.gmail.send(email!), "writer"),
+    );
   }
 
   const verification = await verifyPlan(apps, prior.plan, sinceUnix, tracer);

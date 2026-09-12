@@ -182,14 +182,14 @@ function App() {
               </button>
             </div>
           ) : null}
-          {state.status === "failed" && v?.missing.includes("gmail") ? (
+          {state.status === "failed" && v?.missing.length ? (
             <div className="row">
               <button
                 type="button"
                 onClick={() => wrap(() => agent.stub.retryMissing())}
                 disabled={busy}
               >
-                Retry missing Gmail
+                Retry {v.missing.join(", ")}
               </button>
             </div>
           ) : null}
