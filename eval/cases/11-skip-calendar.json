@@ -1,0 +1,42 @@
+{
+  "id": "11-skip-calendar",
+  "prUrl": "https://github.com/acme/closer-demo/pull/11",
+  "seed": {
+    "pulls": [
+      {
+        "url": "https://github.com/acme/closer-demo/pull/11",
+        "number": 11,
+        "title": "Fix auth callback 500",
+        "body": "No calendar step in this build.",
+        "merged": true,
+        "branch": "fix/eng-19-auth-callback"
+      }
+    ],
+    "issues": [
+      {
+        "id": "issue-19",
+        "identifier": "ENG-19",
+        "title": "Auth callback 500",
+        "url": "https://linear.app/demo/issue/ENG-19",
+        "state": "In Progress",
+        "subscriberEmail": "ask@example.com",
+        "assigneeEmail": null,
+        "comments": []
+      }
+    ],
+    "sent": []
+  },
+  "script": [],
+  "expect": {
+    "status": "done",
+    "writes": ["linear.setState", "linear.comment", "gmail.send"],
+    "issueIdentifier": "ENG-19",
+    "gmailTo": "ask@example.com",
+    "verify": {
+      "linearDone": true,
+      "commentHasPrUrl": true,
+      "gmailSentId": true,
+      "missing": []
+    }
+  }
+}

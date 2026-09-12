@@ -1,0 +1,45 @@
+{
+  "id": "07-linear-429",
+  "prUrl": "https://github.com/acme/closer-demo/pull/7",
+  "seed": {
+    "pulls": [
+      {
+        "url": "https://github.com/acme/closer-demo/pull/7",
+        "number": 7,
+        "title": "Fix auth callback 500",
+        "body": "Ship the retry.",
+        "merged": true,
+        "branch": "fix/eng-19-auth-callback"
+      }
+    ],
+    "issues": [
+      {
+        "id": "issue-19",
+        "identifier": "ENG-19",
+        "title": "Auth callback 500",
+        "url": "https://linear.app/demo/issue/ENG-19",
+        "state": "In Progress",
+        "subscriberEmail": "ask@example.com",
+        "assigneeEmail": null,
+        "comments": []
+      }
+    ],
+    "sent": []
+  },
+  "script": [
+    { "tool": "linear.setState", "http": 429 },
+    { "tool": "linear.setState", "http": 200 }
+  ],
+  "expect": {
+    "status": "done",
+    "writes": ["linear.setState", "linear.comment", "gmail.send"],
+    "issueIdentifier": "ENG-19",
+    "gmailTo": "ask@example.com",
+    "verify": {
+      "linearDone": true,
+      "commentHasPrUrl": true,
+      "gmailSentId": true,
+      "missing": []
+    }
+  }
+}

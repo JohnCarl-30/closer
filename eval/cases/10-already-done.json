@@ -1,0 +1,47 @@
+{
+  "id": "10-already-done",
+  "prUrl": "https://github.com/acme/closer-demo/pull/10",
+  "seed": {
+    "pulls": [
+      {
+        "url": "https://github.com/acme/closer-demo/pull/10",
+        "number": 10,
+        "title": "Fix auth callback 500",
+        "body": "Ship the retry.",
+        "merged": true,
+        "branch": "fix/eng-19-auth-callback"
+      }
+    ],
+    "issues": [
+      {
+        "id": "issue-19",
+        "identifier": "ENG-19",
+        "title": "Auth callback 500",
+        "url": "https://linear.app/demo/issue/ENG-19",
+        "state": "Done",
+        "subscriberEmail": "ask@example.com",
+        "assigneeEmail": null,
+        "comments": [
+          {
+            "id": "c0",
+            "body": "Shipped in https://github.com/acme/closer-demo/pull/10"
+          }
+        ]
+      }
+    ],
+    "sent": []
+  },
+  "script": [],
+  "expect": {
+    "status": "done",
+    "writes": ["gmail.send"],
+    "issueIdentifier": "ENG-19",
+    "gmailTo": "ask@example.com",
+    "verify": {
+      "linearDone": true,
+      "commentHasPrUrl": true,
+      "gmailSentId": true,
+      "missing": []
+    }
+  }
+}
