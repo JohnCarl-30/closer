@@ -1,5 +1,5 @@
 {
-  "id": "11-skip-calendar",
+  "id": "11-linear-state-fails",
   "prUrl": "https://github.com/acme/closer-demo/pull/11",
   "seed": {
     "pulls": [
@@ -7,7 +7,7 @@
         "url": "https://github.com/acme/closer-demo/pull/11",
         "number": 11,
         "title": "Fix auth callback 500",
-        "body": "No calendar step in this build.",
+        "body": "Ship the retry.",
         "merged": true,
         "branch": "fix/eng-19-auth-callback"
       }
@@ -26,17 +26,17 @@
     ],
     "sent": []
   },
-  "script": [],
+  "script": [{ "tool": "linear.setState", "throw": "Linear issueUpdate 500" }],
   "expect": {
-    "status": "done",
-    "writes": ["linear.setState", "linear.comment", "gmail.send"],
+    "status": "failed",
+    "writes": ["linear.comment", "gmail.send"],
     "issueIdentifier": "ENG-19",
     "gmailTo": "ask@example.com",
     "verify": {
-      "linearDone": true,
+      "linearDone": false,
       "commentHasPrUrl": true,
       "gmailSentId": true,
-      "missing": []
+      "missing": ["linear.state"]
     }
   }
 }

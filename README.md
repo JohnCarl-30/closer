@@ -4,7 +4,22 @@ A post-ship agent. Paste a merged GitHub PR. It finds the Linear issue, marks it
 
 If the PR-to-issue match or the recipient is shaky, it escalates and writes nothing. If two Linear tickets both fit, you pick one before it writes. The silent-200 button is a mock-only replay that proves a Gmail 200 is not enough.
 
+## The 60-second demo
+
+1. **Run** — the demo PR URL is prefilled. The plan card shows the matched ticket, the recipient,
+   and the confidence scores with reasons. Nothing has been written yet.
+2. **Approve writes** — it marks the ticket Done, comments the PR link, sends the email, then the
+   verifier re-reads all three. Green checks are re-reads, not API return codes.
+3. **Replay silent 200** — the punchline. Gmail returns a clean 200 but the message never lands in
+   sent mail. The writer saw success; the verifier catches the lie and the run goes red with
+   `missing: gmail`. Click **Retry gmail** to recover.
+4. **Two tickets** — an ambiguous PR matches two issues. It refuses to guess: zero writes until a
+   human picks one.
+
+The pitch in one line: *every agent trusts the 200 — this one re-reads the sent folder.*
+
 ## Run
+
 
 ```bash
 cp secrets.example .dev.vars
