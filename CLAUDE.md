@@ -12,8 +12,8 @@ both apps** to confirm the writes landed. A 200 from Gmail is not success; a mes
 
 ```bash
 npm run dev          # vite dev — UI on :5173, Worker via @cloudflare/vite-plugin
-npm test             # tsx --test test/*.test.ts (27 tests, plain Node, no Worker runtime)
-npm run eval         # 12-case golden set; writes eval/traces/<id>.json; exits 1 on any failure
+npm test             # tsx --test test/*.test.ts (29 tests, plain Node, no Worker runtime)
+npm run eval         # 13-case golden set; writes eval/traces/<id>.json; exits 1 on any failure
 npm run check        # tsc --noEmit && test && eval — run this before calling work done
 npm run types        # wrangler types → regenerates worker-configuration.d.ts
 npm run deploy       # vite build && wrangler deploy
@@ -23,10 +23,11 @@ npm run seed:gmail   # local OAuth flow → GOOGLE_REFRESH_TOKEN into .dev.vars
 
 Single test file: `npx tsx --test test/confidence.test.ts`
 Single test by name: `npx tsx --test --test-name-pattern "silent 200" test/*.test.ts`
-Single eval case: no flag exists — `npm run eval` runs all 12 (they take <1s total).
+Single eval case: no flag exists — `npm run eval` runs all 13 (they take <1s total).
 
-`eval/smoke.ts` is a manual end-to-end check against a **running** dev server; it hardcodes
-`localhost:5174`, not the 5173 Vite prints. Adjust the host or the dev port before using it.
+`eval/smoke.ts` is a manual end-to-end check against a **running** dev server. It defaults to
+`localhost:5173` and reads `DEMO_PR_URL` from the seed; override the host with `CLOSER_HOST=host:port`
+when Vite falls back to another port.
 
 ## Architecture
 
@@ -78,8 +79,12 @@ recipient escalates even after a choice.
 
 `execute` captures `sinceUnix` *before* writing, then `src/verify.ts` re-reads issue state, comments,
 and `in:sent` through the same `Apps`. Status is derived only from `verification.missing` —
-`missing.length ? "failed" : "done"`. A failing `gmail.send` is swallowed in `execute` on purpose;
-the verifier is what reports it.
+`missing.length ? "failed" : "done"`. Every write goes through the `attempt` helper, which records it
+in `writes` only if it lands and swallows the failure on purpose: a throw would skip verification and
+lose the record of what *did* land. The verifier is the only thing allowed to say what happened.
+
+`retryMissing` re-attempts exactly the entries in `missing` (`linear.state`, `linear.comment`,
+`gmail`) and re-verifies, so a partial failure is recoverable from any side, not just Gmail.
 
 Writes are idempotency-guarded: `execute` re-reads state and comments first and skips
 `linear.setState` / `linear.comment` when already Done / already mentioning the PR. The `writes`
