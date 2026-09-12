@@ -1,0 +1,46 @@
+{
+  "id": "03-ambiguous",
+  "prUrl": "https://github.com/acme/closer-demo/pull/3",
+  "seed": {
+    "pulls": [
+      {
+        "url": "https://github.com/acme/closer-demo/pull/3",
+        "number": 3,
+        "title": "Auth tweaks",
+        "body": "Small auth fix.",
+        "merged": true,
+        "branch": "fix/auth-login"
+      }
+    ],
+    "issues": [
+      {
+        "id": "issue-19",
+        "identifier": "ENG-19",
+        "title": "Auth callback 500",
+        "url": "https://linear.app/demo/issue/ENG-19",
+        "state": "In Progress",
+        "subscriberEmail": "ask@example.com",
+        "assigneeEmail": null,
+        "comments": []
+      },
+      {
+        "id": "issue-20",
+        "identifier": "ENG-20",
+        "title": "Auth retry storm",
+        "url": "https://linear.app/demo/issue/ENG-20",
+        "state": "In Progress",
+        "subscriberEmail": "ask@example.com",
+        "assigneeEmail": null,
+        "comments": []
+      }
+    ],
+    "sent": []
+  },
+  "script": [],
+  "expect": {
+    "status": "needs_choice",
+    "writes": [],
+    "issueIdentifier": null,
+    "reasonsIncludes": ["ambiguous"]
+  }
+}

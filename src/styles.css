@@ -1,0 +1,200 @@
+:root {
+  color-scheme: light;
+  --ink: #1a1814;
+  --muted: #6b645c;
+  --line: #d9d1c7;
+  --paper: #f6f1ea;
+  --card: #fffdf9;
+  --good: #1f6b3a;
+  --bad: #9b1c1c;
+  --wait: #8a5a12;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 16px/1.45 "Newsreader", "Iowan Old Style", "Palatino Linotype", Palatino,
+    serif;
+}
+
+#root {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 4rem;
+}
+
+h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.25rem;
+}
+
+.lede {
+  color: var(--muted);
+  margin: 0 0 1.5rem;
+}
+
+.chips {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin: 0 0 0.65rem;
+}
+
+.chip {
+  font-size: 0.8rem;
+  border: 1px solid var(--line);
+  padding: 0.12rem 0.5rem;
+  color: var(--muted);
+}
+
+.chip.live {
+  color: var(--good);
+  border-color: var(--good);
+}
+
+.chip.mock {
+  color: var(--wait);
+}
+
+.banner {
+  border: 1px solid var(--line);
+  background: #efe7db;
+  padding: 0.65rem 0.8rem;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.pick {
+  margin: 0.9rem 0 0;
+  color: var(--wait);
+}
+
+label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+}
+
+input[type="url"] {
+  width: 100%;
+  font: inherit;
+  padding: 0.65rem 0.2rem;
+  border: none;
+  border-bottom: 1px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+}
+
+input[type="url"]:focus {
+  outline: none;
+  border-bottom-width: 2px;
+}
+
+.row {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+  flex-wrap: wrap;
+}
+
+button {
+  font: inherit;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  cursor: pointer;
+}
+
+button.secondary {
+  background: transparent;
+  color: var(--ink);
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  padding: 1rem 1.1rem;
+  margin-top: 1.25rem;
+}
+
+.card h2 {
+  font-size: 1rem;
+  margin: 0 0 0.75rem;
+  font-weight: 600;
+}
+
+.kv {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  gap: 0.35rem 0.75rem;
+  font-size: 0.98rem;
+}
+
+.kv dt {
+  color: var(--muted);
+}
+
+.reasons {
+  margin: 0.75rem 0 0;
+  padding-left: 1.1rem;
+  color: var(--muted);
+}
+
+.check {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.check li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.ok {
+  color: var(--good);
+}
+
+.no {
+  color: var(--bad);
+}
+
+.warn {
+  color: var(--wait);
+}
+
+.trace {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.8rem;
+}
+
+.trace li {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.trace li strong {
+  color: var(--ink);
+  font-weight: 600;
+}

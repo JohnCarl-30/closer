@@ -1,0 +1,37 @@
+{
+  "id": "12-email-mismatch",
+  "prUrl": "https://github.com/acme/closer-demo/pull/12",
+  "seed": {
+    "pulls": [
+      {
+        "url": "https://github.com/acme/closer-demo/pull/12",
+        "number": 12,
+        "title": "Fix auth callback 500",
+        "body": "Closes ENG-19\n\nmailto:other@example.com",
+        "merged": true,
+        "branch": "fix/callback-retry"
+      }
+    ],
+    "issues": [
+      {
+        "id": "issue-19",
+        "identifier": "ENG-19",
+        "title": "Auth callback 500",
+        "url": "https://linear.app/demo/issue/ENG-19",
+        "state": "In Progress",
+        "subscriberEmail": "ask@example.com",
+        "assigneeEmail": null,
+        "comments": []
+      }
+    ],
+    "sent": []
+  },
+  "script": [],
+  "expect": {
+    "status": "escalated",
+    "writes": [],
+    "issueIdentifier": "ENG-19",
+    "gmailTo": null,
+    "reasonsIncludes": ["email mismatch"]
+  }
+}

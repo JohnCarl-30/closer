@@ -1,0 +1,43 @@
+{
+  "id": "02-happy-identifier",
+  "prUrl": "https://github.com/acme/closer-demo/pull/2",
+  "seed": {
+    "pulls": [
+      {
+        "url": "https://github.com/acme/closer-demo/pull/2",
+        "number": 2,
+        "title": "Close the auth ticket",
+        "body": "Closes ENG-19",
+        "merged": true,
+        "branch": "fix/callback-retry"
+      }
+    ],
+    "issues": [
+      {
+        "id": "issue-19",
+        "identifier": "ENG-19",
+        "title": "Auth callback 500",
+        "url": "https://linear.app/demo/issue/ENG-19",
+        "state": "In Progress",
+        "subscriberEmail": "ask@example.com",
+        "assigneeEmail": null,
+        "comments": []
+      }
+    ],
+    "sent": []
+  },
+  "script": [],
+  "expect": {
+    "status": "done",
+    "writes": ["linear.setState", "linear.comment", "gmail.send"],
+    "issueIdentifier": "ENG-19",
+    "gmailTo": "ask@example.com",
+    "commentHasPrUrl": true,
+    "verify": {
+      "linearDone": true,
+      "commentHasPrUrl": true,
+      "gmailSentId": true,
+      "missing": []
+    }
+  }
+}

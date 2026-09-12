@@ -1,0 +1,36 @@
+{
+  "id": "04-no-issue",
+  "prUrl": "https://github.com/acme/closer-demo/pull/4",
+  "seed": {
+    "pulls": [
+      {
+        "url": "https://github.com/acme/closer-demo/pull/4",
+        "number": 4,
+        "title": "Payments export",
+        "body": "CSV dump for finance.",
+        "merged": true,
+        "branch": "fix/payments-export"
+      }
+    ],
+    "issues": [
+      {
+        "id": "issue-19",
+        "identifier": "ENG-19",
+        "title": "Auth callback 500",
+        "url": "https://linear.app/demo/issue/ENG-19",
+        "state": "In Progress",
+        "subscriberEmail": "ask@example.com",
+        "assigneeEmail": null,
+        "comments": []
+      }
+    ],
+    "sent": []
+  },
+  "script": [],
+  "expect": {
+    "status": "escalated",
+    "writes": [],
+    "issueIdentifier": null,
+    "reasonsIncludes": ["no Linear issue matched"]
+  }
+}
