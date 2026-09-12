@@ -117,5 +117,5 @@ RELIABILITY.md when the set changes.
   which is the default demo path — the UI ships with the demo PR URL prefilled.
 - Linear `setState` ignores its `stateId` argument and always uses the configured
   `LINEAR_DONE_STATE_ID`; `isDoneState` matches on the state *name* being `"done"`.
-- Google Calendar is referenced in the eval set (case 11) but is not wired. See RELIABILITY.md
+- Google Calendar is not wired — the loop is GitHub + Linear + Gmail only. See RELIABILITY.md
   "Known holes" before assuming a fourth app exists.

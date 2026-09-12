@@ -30,7 +30,7 @@ case                     result   status
 08-partial-gmail-fail    pass    failed
 09-not-merged            pass    escalated
 10-already-done          pass    done
-11-skip-calendar         pass    done
+11-linear-state-fails    pass    failed
 12-email-mismatch        pass    escalated
 13-linear-comment-fails  pass    failed
 
@@ -41,6 +41,6 @@ Traces: `eval/traces/<id>.json`.
 
 ## Known holes
 
-- Google Calendar is not wired. Case 11 still passes with GitHub + Linear + Gmail.
+- Google Calendar is not wired. The loop is GitHub + Linear + Gmail only.
 - Live Gmail needs a refresh token in `.dev.vars`. Without it, the UI mocks send and still runs verify.
 - Linear 429 retry is three attempts with a short backoff. Not a full rate-limit budget.
