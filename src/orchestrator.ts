@@ -338,9 +338,12 @@ export async function planAndExecute(
   return execute(apps, planned);
 }
 
-export async function replaySilent200(): Promise<OrchestratorResult> {
-  const apps = createMockApps(DEMO_SEED, [
-    { tool: "gmail.send", persistSent: false },
-  ]);
+export function silent200Apps(): Apps {
+  return createMockApps(DEMO_SEED, [{ tool: "gmail.send", persistSent: false }]);
+}
+
+export async function replaySilent200(
+  apps: Apps = silent200Apps(),
+): Promise<OrchestratorResult> {
   return planAndExecute(apps, DEMO_PR_URL);
 }

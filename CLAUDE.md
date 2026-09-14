@@ -25,9 +25,10 @@ Single test file: `npx tsx --test test/confidence.test.ts`
 Single test by name: `npx tsx --test --test-name-pattern "silent 200" test/*.test.ts`
 Single eval case: no flag exists — `npm run eval` runs all 13 (they take <1s total).
 
-`eval/smoke.ts` is a manual end-to-end check against a **running** dev server. It defaults to
-`localhost:5173` and reads `DEMO_PR_URL` from the seed; override the host with `CLOSER_HOST=host:port`
-when Vite falls back to another port.
+`eval/smoke.ts` (happy path) and `npm run demo:check` (all four demo beats: happy, silent-200 +
+retry, two-tickets + choose) are end-to-end checks against a **running** dev server, over the same
+agents WebSocket the UI buttons use. Both default to `localhost:5173`; override with
+`CLOSER_HOST=host:port` when Vite falls back to another port.
 
 ## Architecture
 
@@ -42,6 +43,12 @@ and `replaySilent200`. None of them touch `Env`, the DO, or the network directly
 (`fromResult`), and `setState`s. Keep it that way — it is why `npm test` and `npm run eval` run the
 full pipeline in plain Node with zero Worker runtime. **New behavior belongs in the orchestrator,
 not in the agent class.**
+
+The `Closer` DO caches one `Apps` instance across callables (`appsFor`), rebuilt only when a new
+run starts (`start` / `replaySilent200`). This is load-bearing for mock mode: the mock holds its
+writes in memory, so a retry must verify against the same instance the run wrote to — rebuilding
+per call makes retries oscillate forever (fix gmail, lose linear; fix linear, lose gmail). It is
+deliberately not in `CloserState`; a DO restart just rebuilds and a demo run starts over.
 
 Wire-up: `src/server.ts` → `routeAgentRequest` → `Closer` DO (SQLite-backed, `wrangler.jsonc`
 migration `v1`). The React client (`src/client.tsx`) calls `agent.stub.<method>(...)` over the
