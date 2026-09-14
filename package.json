@@ -12,7 +12,8 @@
     "eval": "tsx eval/run.ts",
     "seed:linear": "tsx scripts/linear-seed.ts",
     "seed:gmail": "tsx scripts/gmail-oauth.ts",
-    "check": "tsc --noEmit && tsx --test test/*.test.ts && tsx eval/run.ts"
+    "check": "tsc --noEmit && tsx --test test/*.test.ts && tsx eval/run.ts",
+    "demo:check": "tsx eval/demo-check.ts"
   },
   "dependencies": {
     "agents": "^0.17.4",

@@ -7,7 +7,9 @@ import {
   plan,
   replaySilent200,
   retryMissing,
+  silent200Apps,
 } from "./orchestrator";
+import type { Apps } from "./apps/types";
 import type {
   OrchestratorResult,
   Plan,
@@ -55,6 +57,29 @@ function priorFrom(state: CloserState): OrchestratorResult {
 }
 
 export class Closer extends Agent<Env, CloserState> {
+  // Lives outside state on purpose: mock apps hold in-memory writes, and a
+  // retry must verify against the same world the run wrote to. Rebuilding per
+  // callable resets that world, so a mock retry could never converge. Lost on
+  // DO restart — appsFor() then rebuilds and a demo run simply starts over.
+  private apps: Apps | null = null;
+
+  private appsFor(prUrl: string): {
+    apps: Apps;
+    mode: AppsMode;
+    flags: LiveFlags;
+  } {
+    if (this.apps) {
+      return {
+        apps: this.apps,
+        mode: this.state.appsMode,
+        flags: this.state.liveFlags,
+      };
+    }
+    const made = createApps(this.env, prUrl);
+    this.apps = made.apps;
+    return made;
+  }
+
   initialState: CloserState = {
     status: "idle",
     plan: null,
@@ -70,6 +95,7 @@ export class Closer extends Agent<Env, CloserState> {
   async start(prUrl: string): Promise<CloserState> {
     const trimmed = prUrl.trim();
     const { apps, mode, flags } = createApps(this.env, trimmed);
+    this.apps = apps;
     this.setState({
       ...this.state,
       status: "planning",
@@ -124,7 +150,7 @@ export class Closer extends Agent<Env, CloserState> {
     if (this.state.status !== "awaiting_approval" || !this.state.plan) {
       return this.state;
     }
-    const { apps, mode, flags } = createApps(this.env, this.state.plan.pr.url);
+    const { apps, mode, flags } = this.appsFor(this.state.plan.pr.url);
     try {
       const result = await execute(apps, priorFrom(this.state));
       const next = fromResult(result, mode, flags);
@@ -153,7 +179,7 @@ export class Closer extends Agent<Env, CloserState> {
   @callable()
   async retryMissing(): Promise<CloserState> {
     if (this.state.status !== "failed" || !this.state.plan) return this.state;
-    const { apps, mode, flags } = createApps(this.env, this.state.plan.pr.url);
+    const { apps, mode, flags } = this.appsFor(this.state.plan.pr.url);
     try {
       const result = await retryMissing(apps, priorFrom(this.state));
       const next = fromResult(result, mode, flags);
@@ -181,8 +207,9 @@ export class Closer extends Agent<Env, CloserState> {
       appsMode: "mock",
       liveFlags: MOCK_FLAGS,
     });
+    this.apps = silent200Apps();
     try {
-      const result = await replaySilent200();
+      const result = await replaySilent200(this.apps);
       const next = fromResult(result, "mock", MOCK_FLAGS);
       this.setState(next);
       return next;
