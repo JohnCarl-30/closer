@@ -119,7 +119,9 @@ function App() {
           <h2>Plan</h2>
           <dl className="kv">
             <dt>Status</dt>
-            <dd>{state.status}</dd>
+            <dd>
+              <span className={`pill st-${state.status}`}>{state.status}</span>
+            </dd>
             <dt>PR</dt>
             <dd>
               #{state.plan.pr.number} {state.plan.pr.title} (
@@ -161,6 +163,20 @@ function App() {
                   </button>
                 ))}
               </div>
+            </div>
+          ) : null}
+          {state.status === "awaiting_approval" && state.plan.issue ? (
+            <div className="writes">
+              <p>Staged — nothing is written until you approve:</p>
+              <ol>
+                <li>
+                  Linear {state.plan.issue.identifier} → Done
+                </li>
+                <li>Comment with the PR link</li>
+                {state.plan.email ? (
+                  <li>Email {state.plan.email.to}</li>
+                ) : null}
+              </ol>
             </div>
           ) : null}
           {state.status === "awaiting_approval" ? (
@@ -228,6 +244,13 @@ function App() {
           <ol className="trace">
             {state.traces.map((t, i) => (
               <li key={`${t.t}-${i}`}>
+                <span className="mark">
+                  {t.type === "tool_result" ? (
+                    <span className={t.ok ? "ok" : "no"}>
+                      {t.ok ? "\u2713" : "\u2717"}
+                    </span>
+                  ) : null}
+                </span>
                 <strong>{t.type}</strong>
                 {t.agent ? ` ${t.agent}` : ""}
                 {t.tool ? ` ${t.tool}` : ""}
