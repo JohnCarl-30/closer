@@ -1,5 +1,7 @@
 # Closer
 
+[![check](https://github.com/JohnCarl-30/closer/actions/workflows/check.yml/badge.svg)](https://github.com/JohnCarl-30/closer/actions/workflows/check.yml)
+
 A post-ship agent. Paste a merged GitHub PR. It finds the Linear issue, marks it Done with the PR link, emails whoever asked, then reads both apps again. A 200 from Gmail is not enough. The message has to show up in sent mail.
 
 If the PR-to-issue match or the recipient is shaky, it escalates and writes nothing. If two Linear tickets both fit, you pick one before it writes. The silent-200 button is a mock-only replay that proves a Gmail 200 is not enough.
@@ -59,6 +61,33 @@ npm run seed:linear
 # after pasting GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET
 npm run seed:gmail
 ```
+
+## How it works
+
+The Worker routes requests to a single Durable Object (`Closer`), which is a thin state shell.
+All logic lives in `src/orchestrator.ts` as pure functions — `plan` → `chooseIssue` → `execute` →
+`retryMissing` — over an `Apps` interface (`src/apps/types.ts`) that abstracts GitHub, Linear, and
+Gmail. That seam is why the whole pipeline runs in plain Node for tests and the golden set, with no
+Worker runtime.
+
+Each app resolves live or mock independently, based on which keys are present in `.dev.vars` —
+missing Gmail keys mock the sends while GitHub and Linear stay live, and the verify path is
+identical either way. The mock (`src/apps/mock.ts`) is stateful and scriptable: eval cases inject
+429s, thrown writes, and the silent 200 (a send that returns success without persisting to sent
+mail).
+
+Design decisions worth naming:
+
+- **Confidence gates writes.** `overall = min(match, email)`; below 0.75, or on an unmerged PR, it
+  escalates with zero writes. Escalation and `needs_choice` are passing outcomes, not errors.
+- **The writer never grades itself.** After writing, a verifier re-reads issue state, comments, and
+  `in:sent` through the same interface. Status derives only from what the re-read finds — a Gmail
+  200 with no message in sent mail is `failed`, `missing: ["gmail"]`.
+- **Every write is attempted even when an earlier one throws**, so the run always reaches the
+  verifier with an accurate record, and `retryMissing` re-attempts exactly what verification
+  reported missing.
+- **The React client is state-only.** It calls DO methods over the agents WebSocket and renders
+  pushed `CloserState`; it never fetches or derives.
 
 ## Tests
 
