@@ -2,6 +2,8 @@
 
 [![check](https://github.com/JohnCarl-30/closer/actions/workflows/check.yml/badge.svg)](https://github.com/JohnCarl-30/closer/actions/workflows/check.yml)
 
+**A hackathon project** — built in days, verified anyway. Every claim the agent makes is checked by re-reading the systems it wrote to, and every claim this README makes is checked by [CI](https://github.com/JohnCarl-30/closer/actions).
+
 A post-ship agent. Paste a merged GitHub PR. It finds the Linear issue, marks it Done with the PR link, emails whoever asked, then reads both apps again. A 200 from Gmail is not enough. The message has to show up in sent mail.
 
 If the PR-to-issue match or the recipient is shaky, it escalates and writes nothing. If two Linear tickets both fit, you pick one before it writes. The silent-200 button is a mock-only replay that proves a Gmail 200 is not enough.
